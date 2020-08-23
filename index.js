@@ -106,7 +106,7 @@ class Titlebar {
      */
     makeSubmenu() {
         let submenu = document.createElement("div");
-        $(submenu).attr({"class": "submenu"});
+        $(submenu).attr({"class": "ect-submenu"});
         $(submenu).css({
             "position": "absolute",
             "display": "none",
@@ -130,7 +130,46 @@ class Titlebar {
         return submenu;
     }
 
+    /** TODO: create the different buttons depending on their function.
+     * Creates a submenu button
+     * @returns {Element} The submenu button
+     */
+    makeSubmenuButton() {
+        let subbutton = document.createElement("li");
+        $(subbutton).css({
+            "background-color": this.params.buttonHoverColor,
+            "padding": "5px 20px"
+        });
 
+        let subbutton_left_text = document.createElement("span");
+        $(subbutton_left_text).attr({"class": "ect-submenu_option"});
+        $(subbutton_left_text).css({
+            "white-space": "nowrap",
+            "text-overflow": "ellipsis"
+        });
+        
+        let subbutton_right_text = document.createElement("span");
+        $(subbutton_right_text).attr({"class": "ect-submenu_option_command"});
+        $(subbutton_right_text).css({
+            "float": "right"
+        });
+
+        $(subbutton).append([subbutton_left_text, subbutton_right_text]);
+
+        $(subbutton).hover(function() {
+            $(this).css({
+                "background-color": this.params.backgroundColor,
+            });
+        });
+
+        $(subbutton).mouseleave(function() {
+            $(this).css({
+                "background-color": this.params.buttonHoverColor,
+            });
+        });
+
+        return subbutton;
+    }
 
     makeMenu() {
 
