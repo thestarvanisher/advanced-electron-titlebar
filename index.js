@@ -52,6 +52,7 @@ class Titlebar {
         this.makeTitlebar();
         this.makeTitlebarZones();
         this.makeMenu();
+        this.makeHiddenButton();
         this.makeTitle();
         this.makeWindowButtons();
     }
@@ -500,8 +501,24 @@ class Titlebar {
             console.log(new_submenu);
             $(new_button).append(new_submenu);
             $("#ect-titlebar").children(".ect-titlebar_panel").first().append(new_button);
-            this.recoursiveAddition(this.menu[i], new_submenu);
+            this.recoursiveAddition(this.menu[i].submenu, new_submenu);
         }
+
+        let dots_b = this.makeHiddenButton();
+        let submenu = this.makeSubmenu();
+        $(dots_b).append(submenu);
+        $("#ect-titlebar").children(".ect-titlebar_panel").first().append(dots_b);
+        this.recoursiveAddition(this.menu, submenu);
+    }
+
+    /**
+     * Create the hidden dots button
+     * @returns {Element} The dots button
+     */
+    makeHiddenButton() {
+        let dots = this.makeMenuButton("...");
+        $(dots).children("button").first().attr("id", "ect-b_dots");
+        return dots;
     }
 
     /**
@@ -607,47 +624,54 @@ $(document).ready(function() {
 
     let menu = {
         "File": {
-            "New File": {
-                type: "standard",
-                command: "Ctrl+N",
-                method: () => testAlert(),
-            },
-            "Open File": {
-                type: "standard",
-                command: "Ctrl+O",
-                method: () => testAlert(),
-            },
-            "Print menu": {
-                type: "submenu",
-                submenu: {
-                    "Print": {
-                        type: "standard",
-                        command: "Ctrl+P",
-                        method: () => testAlert(),
-                    },
-                    "More Options": {
-                        type: "submenu",
-                        submenu: {
-                            "Black and white copy green": {
-                                type: "standard",
-                                command: "Ctrl+B",
-                                method: () => null,
-                            },
-                            "Color": {
-                                type: "standard",
-                                command: "",
-                                methdod: () => null,
+            type: "submenu",
+            submenu: {
+                "New File": {
+                    type: "standard",
+                    command: "Ctrl+N",
+                    method: () => testAlert(),
+                },
+                "Open File": {
+                    type: "standard",
+                    command: "Ctrl+O",
+                    method: () => testAlert(),
+                },
+                "Print menu": {
+                    type: "submenu",
+                    submenu: {
+                        "Print": {
+                            type: "standard",
+                            command: "Ctrl+P",
+                            method: () => testAlert(),
+                        },
+                        "More Options": {
+                            type: "submenu",
+                            submenu: {
+                                "Black and white copy green": {
+                                    type: "standard",
+                                    command: "Ctrl+B",
+                                    method: () => null,
+                                },
+                                "Color": {
+                                    type: "standard",
+                                    command: "",
+                                    methdod: () => null,
+                                }
                             }
                         }
                     }
                 }
             }
+            
         },
         "Edit": {
-            "Edit mode": {
-                type: "standard",
-                command: "Ctr+E",
-                method: () => testAlert(),
+            type: "submenu",
+            submenu: {
+                "Edit mode": {
+                    type: "standard",
+                    command: "Ctr+E",
+                    method: () => testAlert(),
+                }
             }            
         }
     };
