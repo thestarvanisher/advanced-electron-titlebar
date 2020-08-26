@@ -18,8 +18,9 @@ class Titlebar {
             closeButtonHoverColor: "firebrick",
             submenuButtonHoverColor: "t",
             icon: null,
-            titlebarLabelFont: "t",
-            titlebarLabelColor: "t",
+            titlebarLabelFont: "Impact",
+            titlebarLabelColor: "#D3D3D3",
+            titlebarLabelSize: "16px",
             menuButtonsColor: "t",
             defaultChevronRight: '<i class="fas fa-chevron-right"></i>',
         };
@@ -51,6 +52,8 @@ class Titlebar {
         this.makeTitlebar();
         this.makeTitlebarZones();
         this.makeMenu();
+        this.makeTitle();
+        this.makeWindowButtons();
     }
 
     /**
@@ -75,6 +78,7 @@ class Titlebar {
             "background-color": this.params.backgroundColor,
             "width": "100%",
             "height": "30px",
+            "line-height": "30px",
             "display": "flex",
             "-webkit-user-select": "none",
             "color": this.params.defaultTextColor,
@@ -196,6 +200,8 @@ class Titlebar {
             "position": "absolute",
             "display": "none",
             "min-width": "200px",
+            "max-height": "calc(100vh - 30px)",
+            "overflow-y": "auto",
             "line-height": "normal",
             "font-family": "Arial",
             "font-size": "14px",
@@ -216,7 +222,7 @@ class Titlebar {
     }
 
     /** TODO: Fix the click handling
-     * Creates a submenu button
+     * Creates a submenu or subsubmenu button
      * @param {String} text - The text displayed on the button
      * @param {Element} btn - The submenu object
      * @param {boolean} opens_submenu - A flag that indicates if the button opens a submenu (true) or not (false)
@@ -227,14 +233,19 @@ class Titlebar {
         let subbutton = document.createElement("li");
         $(subbutton).css({
             "background-color": this.params.buttonHoverColor,
-            "padding": "5px 20px"
+            "padding": "5px 20px",
+            "display": "flex",
+            "overflow": "hidden"
         });
 
         let subbutton_left_text = document.createElement("span");
         $(subbutton_left_text).attr({"class": "ect-submenu_option"});
         $(subbutton_left_text).css({
             "white-space": "nowrap",
-            "text-overflow": "ellipsis"
+            "text-overflow": "ellipsis",
+            "padding-right": "10px",
+            "overflow": "hidden",
+            "flex": "2",
         });
 
         $(subbutton_left_text).text(text);
@@ -250,12 +261,17 @@ class Titlebar {
             $(subbutton_right_text).html(this.params.defaultChevronRight);
 
             let obj = this;
-            $(subbutton).hover(function() {
+            $(subbutton).hover(function(event) {
                 $(this).css({
                     "background-color": obj.params.backgroundColor,
                 });
 
-                let subsubmenu = $(this).children("ect-subsubmenu").first();
+                //event.stopPropagation();
+                //console.log("TEST");
+
+
+
+                let subsubmenu = $(this).children(".ect-subsubmenu").first();
                 let left_offset = $(this)[0].getBoundingClientRect().x;
                 let top_offset = $(this)[0].getBoundingClientRect().y;
                 let outer_width = $(this).outerWidth();
@@ -263,17 +279,42 @@ class Titlebar {
                 let subsubmenu_outer_height = $(subsubmenu).outerHeight();
                 let window_size = obj.getWindowSize();
 
+                $(subsubmenu).children("ul").first().children("li").css({
+                    "max-width": "none"
+                });
+
                 if(left_offset + outer_width + subsubmenu_outer_width > window_size[0]) {
-                    $(subsubmenu).css({
-                        "display": "inline-block",
-                        "left": ("" + (left_offset + outer_width) + "px"),
-                        "top": ("" + top_offset + "px")
-                    });
+                    if(subsubmenu_outer_width > window_size[0] - (left_offset + 10)) {
+                        if(window_size[0] > subsubmenu_outer_width) {
+                            $(subsubmenu).css({
+                                "display": "inline-block",
+                                "left": ("" + (window_size[0] - subsubmenu_outer_width) + "px"),
+                                "top": ("" + top_offset + "px")
+                            });
+                        }
+                        else {
+                            $(subsubmenu).css({
+                                "display": "inline-block",
+                                "left": ("0" + "px"),
+                                "top": ("" + top_offset + "px"),
+                            });
+                            $(subsubmenu).children("ul").first().children("li").css({
+                                "max-width": ("calc(" + window_size[0] + "px - 40px)")
+                            });
+                        }
+                    }
+                    else {
+                        $(subsubmenu).css({
+                            "display": "inline-block",
+                            "left": ("" + (left_offset + 10) + "px"),
+                            "top": ("" + top_offset + "px")
+                        });
+                    } 
                 }
                 else {
                     $(subsubmenu).css({
                         "display": "inline-block",
-                        "left": ("" + (left_offset + 10) + "px"),
+                        "left": ("" + (left_offset + outer_width) + "px"),
                         "top": ("" + top_offset + "px")
                     });
                 }
@@ -305,7 +346,7 @@ class Titlebar {
                     "background-color": obj.params.buttonHoverColor,
                 });
 
-                let subsubmenu = $(this).children("ect-subsubmenu").first();
+                let subsubmenu = $(this).children(".ect-subsubmenu").first();
                 $(subsubmenu).css("display", "none");
             });
         }
@@ -324,11 +365,10 @@ class Titlebar {
                     "background-color": obj.params.buttonHoverColor,
                 });
             });
+            
+            $(subbutton).click(btn.method);
         }
 
-
-        $(subbutton).click(btn.method);
-        
         $(subbutton).append([subbutton_left_text, subbutton_right_text]);
 
         return subbutton;
@@ -340,7 +380,7 @@ class Titlebar {
      */
     makeSubSubmenu() {
         let subsubmenu = document.createElement("div");
-        $(subsubmenu).attr({"class": "subsubmenu"});
+        $(subsubmenu).attr({"class": "ect-subsubmenu"});
         $(subsubmenu).css({
             "display": "none",
             "position": "fixed",
@@ -356,6 +396,14 @@ class Titlebar {
             "z-index": "120",
             "overflow-y": "auto"
         });
+
+        let subsubmenu_ul = document.createElement("ul");
+        $(subsubmenu_ul).css({
+            "list-style-type": "none",
+            "padding": "0",
+            "margin": "5px 0px"
+        });
+        $(subsubmenu).append(subsubmenu_ul);
 
         return subsubmenu;
     }
@@ -384,7 +432,37 @@ class Titlebar {
     }
 
     /**
-     * Create the submenu buttons recoursively
+     * Create the subsubmenu buttons recoursively and create susubmenus if needed
+     * @param {*} obj - The subsubmenu 
+     * @param {Element} add_to - The element which the subsubmenu will be added to
+     */
+    recoursiveAdditionSub(obj, add_to) {
+        for(let i in obj) {
+
+            switch(obj[i].type) {
+                case this.buttonTypes.standard: {
+                    let new_submenu_button = this.makeSubmenuButton(i, obj[i], 0, 1);
+                    $(add_to).children("ul").first().append(new_submenu_button);
+
+                    break;
+                }
+                case this.buttonTypes.submenu: {
+                    let new_submenu_button = this.makeSubmenuButton(i, obj[i], 1, 1);
+                    $(add_to).children("ul").first().append(new_submenu_button);
+
+                    let new_subsubmenu = this.makeSubSubmenu();
+                    $(new_submenu_button).append(new_subsubmenu);
+
+                    this.recoursiveAdditionSub(obj[i].submenu, new_subsubmenu);
+                    break;
+                }
+            }
+        }
+    }   
+
+
+    /**
+     * Create the submenu buttons recoursively and create susubmenus if needed
      * @param {*} obj - The submenu 
      * @param {Element} add_to - The element which the submenu will be added to
      */
@@ -395,14 +473,17 @@ class Titlebar {
                 case this.buttonTypes.standard: {
                     let new_submenu_button = this.makeSubmenuButton(i, obj[i], 0, 1);
                     $(add_to).children("ul").first().append(new_submenu_button);
-                    console.log("" + i + " " + obj[i].command);
+
                     break;
                 }
                 case this.buttonTypes.submenu: {
-                    console.log("" + i + " >");
                     let new_submenu_button = this.makeSubmenuButton(i, obj[i], 1, 1);
                     $(add_to).children("ul").first().append(new_submenu_button);
-                    this.recoursiveAddition(obj[i].submenu, );
+
+                    let new_subsubmenu = this.makeSubSubmenu();
+                    $(new_submenu_button).append(new_subsubmenu);
+
+                    this.recoursiveAdditionSub(obj[i].submenu, new_subsubmenu);
                     break;
                 }
             }
@@ -410,7 +491,7 @@ class Titlebar {
     }
 
     /**
-     * Creates the menu
+     * Creates the menu (buttons)
      */
     makeMenu() {
         for(let i in this.menu) {
@@ -423,8 +504,103 @@ class Titlebar {
         }
     }
 
+    /**
+     * Creates the title label. Takes the text from the <title> tag
+     */
+    makeTitle() {
+        let title = document.createElement("span");
+        $(title).attr({"class": "ect-title_panel"});
+        $(title).css({
+            "font-family": "Impact",
+            "font-size": "16px"
+        });
+        $(title).text($("title").text());
+        let zone2 = $("#ect-titlebar").children(".ect-titlebar_panel").get(1);
+        $(zone2).append(title);
+    }
+
+    /**
+     * Creates the buttons for minimize, close and restore/maximize
+     */
+    makeWindowButtons() {
+        let obj = this;
+        
+        let minimize = document.createElement("button");
+        $(minimize).html('<i class="far fa-window-minimize">');
+        $(minimize).attr({
+            "class": "ect-titlebar_b",
+            "id": "ect-minimize_window"
+        });
+
+        $(minimize).hover(function() {
+            $(this).css({
+                "background-color": obj.params.buttonHoverColor,
+            });            
+        });
+        $(minimize).mouseleave(function() {
+            $(this).css({
+                "background-color": obj.params.backgroundColor,
+            });
+        });
 
 
+
+        let restore_maximize_window = document.createElement("button");
+        $(restore_maximize_window).html('<i class="far fa-window-restore" id="restore-icon"></i>');
+        $(restore_maximize_window).attr({
+            "class": "ect-titlebar_b",
+            "id": "ect-restore_maximize_window"
+        });
+
+        $(restore_maximize_window).hover(function() {
+            $(this).css({
+                "background-color": obj.params.buttonHoverColor,
+            });            
+        });
+        $(restore_maximize_window).mouseleave(function() {
+            $(this).css({
+                "background-color": obj.params.backgroundColor,
+            });
+        });
+
+
+
+        let close = document.createElement("button");
+        $(close).html('<i class="fas fa-times">');
+        $(close).attr({
+            "class": "ect-titlebar_b",
+            "id": "ect-close_window"
+        });
+
+        $(close).hover(function() {
+            $(this).css({
+                "background-color": obj.params.closeButtonHoverColor,
+            });            
+        });
+        $(close).mouseleave(function() {
+            $(this).css({
+                "background-color": obj.params.backgroundColor,
+            });
+        });
+
+        let zone3 = $("#ect-titlebar").children(".ect-titlebar_panel").get(2);
+        $(zone3).append([minimize, restore_maximize_window, close]);
+
+        $(".ect-titlebar_b").css({
+            "display": "inline-block",
+            "border": "none",
+            "width": "45px",
+            "height": "30px",
+            "padding-left": "5px",
+            "padding-right": "5px",
+            "color": "#D3D3D3",
+            "font-size": "16px",
+            "background-color": "#484848",
+            "outline": "none",
+            "cursor": "pointer",
+            "float": "left"
+        });
+    }
 }
 
 $(document).ready(function() {
@@ -449,6 +625,21 @@ $(document).ready(function() {
                         command: "Ctrl+P",
                         method: () => testAlert(),
                     },
+                    "More Options": {
+                        type: "submenu",
+                        submenu: {
+                            "Black and white copy green": {
+                                type: "standard",
+                                command: "Ctrl+B",
+                                method: () => null,
+                            },
+                            "Color": {
+                                type: "standard",
+                                command: "",
+                                methdod: () => null,
+                            }
+                        }
+                    }
                 }
             }
         },
