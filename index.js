@@ -23,11 +23,13 @@ class Titlebar {
             titlebarLabelSize: "16px",
             menuButtonsColor: "t",
             defaultChevronRight: '<i class="fas fa-chevron-right"></i>',
+            minimumNumberMenuButtons: 3,
         };
         this.buttonTypes = {
             standard: "standard",
             submenu: "submenu",
-        }
+        },
+        this.buttonPositions = [],
         this.createTitlebar();
     }
 
@@ -52,9 +54,11 @@ class Titlebar {
         this.makeTitlebar();
         this.makeTitlebarZones();
         this.makeMenu();
-        this.makeHiddenButton();
+        this.calculateButtonPositions();
+        //this.makeHiddenButton();
         this.makeTitle();
         this.makeWindowButtons();
+        this.addAdditionalEventListeners();
     }
 
     /**
@@ -618,6 +622,88 @@ class Titlebar {
             "float": "left"
         });
     }
+
+    /**
+     * Calculates the steps for the different buttons
+     */
+    calculateButtonPositions() {
+        let minimum_len_ttl_btn = 235;
+        for(let i = 0; i < $(".ect-menu_b").length; i++) {
+            let btn = $(".ect-menu_b")[i];
+
+            let btn_width = ($(btn).outerWidth() < $("#ect-b_dots").outerWidth()) ? $("#ect-b_dots").outerWidth() : $(btn).outerWidth();
+            this.buttonPositions.push(Math.ceil($(btn)[0].getBoundingClientRect().x + btn_width + minimum_len_ttl_btn));
+        }
+        this.buttonPositions.reverse();
+    }
+
+    /**
+     * Handles the window resizing 
+     */
+    resizedWinwow() {
+        let current_width = this.getWindowSize()[0];
+        let number_buttons = this.buttonPositions.length
+
+        console.log("" + number_buttons + " " + this.params.minimumNumberMenuButtons);
+
+        console.log(this.buttonPositions);
+        for(let i = 0; i < number_buttons - this.params.minimumNumberMenuButtons; i++) {
+            if(current_width < this.buttonPositions[i]) {
+                console.log("hello");
+                let btn_1 = $(".ect-menu_b").get(number_buttons - i - 1);
+                let btn_2 = $(".ect-menu_b").get(number_buttons - i - 2);
+
+                $(btn_1).parent().hide();
+                $(btn_2).parent().hide();
+
+                $("#ect-b_dots").parent().show();
+                this.calculateSubmenusShown(number_buttons - i - 1, true)
+                this.calculateSubmenusShown(number_buttons - i - 2, true)
+            }
+            else {
+                let btn = $(".ect-menu_b").get(number_buttons - i - 2);
+                $(btn).parent().show();
+                this.calculateSubmenusShown(number_buttons - i - 2, false)
+                if(i == 0) {
+                    $("#ect-b_dots").parent().hide();
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Shows a submenu if needed 
+     * @param {Number} number - The number of the button to show/hide
+     * @param {boolean} show - Show if true, else hide
+     */
+    calculateSubmenusShown(number, show) {
+        let submenu = $("#ect-b_dots").parent().children(".ect-submenu").first();
+        let li = $(submenu).children("ul").first().children("li").get(number - 1);
+    
+        if(show == true) {
+            $(li).show();
+        }
+        else {
+            $(li).hide();
+        }
+    }
+
+
+    /**
+     * Adds additional event listeners to the titlebar
+     */
+    addAdditionalEventListeners() {
+
+        let obj = this;
+
+        $(window).resize(function() {
+            console.log("resized");
+            obj.resizedWinwow();
+        });
+    }
+
+
 }
 
 $(document).ready(function() {
@@ -665,6 +751,46 @@ $(document).ready(function() {
             
         },
         "Edit": {
+            type: "submenu",
+            submenu: {
+                "Edit mode": {
+                    type: "standard",
+                    command: "Ctr+E",
+                    method: () => testAlert(),
+                }
+            }            
+        },
+        "Edit 1": {
+            type: "submenu",
+            submenu: {
+                "Edit mode": {
+                    type: "standard",
+                    command: "Ctr+E",
+                    method: () => testAlert(),
+                }
+            }            
+        },
+        "Edit 2": {
+            type: "submenu",
+            submenu: {
+                "Edit mode": {
+                    type: "standard",
+                    command: "Ctr+E",
+                    method: () => testAlert(),
+                }
+            }            
+        },
+        "Edit 3": {
+            type: "submenu",
+            submenu: {
+                "Edit mode": {
+                    type: "standard",
+                    command: "Ctr+E",
+                    method: () => testAlert(),
+                }
+            }            
+        },
+        "Edit 4": {
             type: "submenu",
             submenu: {
                 "Edit mode": {
