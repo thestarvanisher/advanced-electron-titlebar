@@ -9,8 +9,29 @@ Current features:
 
 
 ## How to install
+To install run the following command in the terminal in the project folder:
+```npm install --save advanced-electron-titlebar```
 
 ## How to use
-To use first require the module:
-`npm install --save advanced electron-titlebar`
+First create the BrowserWindow in Electron and remove its frame as follows:
+```javascript
+const win = new BrowserWindow({
+    // Other properties
+
+    //Remove the frame
+    frame: false
+  })
+```
+To use the titlebar, first require the module in a JavaScript file (for example in `render.js`): 
+```javascript
+const titlebar = require("advanced-electron-titlebar")
+```
+And then create the titlebar:
+```javascript
+titlebar.create(settings, menu, current_window)
+```
+The arguments for this function are as follows:
+### `settings` argument
+
+
 
