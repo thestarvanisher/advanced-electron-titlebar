@@ -34,10 +34,15 @@ To use the titlebar, first require the module in a JavaScript file (for example 
 ```javascript
 const titlebar = require("advanced-electron-titlebar")
 ```
-And then create the titlebar:
+Make sure that the script is included in the `index.html` file with the **`defer`** tag as follows:
+```html
+<script defer src="render.js"></script>
+```
+Then in the file where you have required the module, create the titlebar by using the **`.create()`** function as follows:
 ```javascript
 titlebar.create(settings, menu, current_window)
 ```
+
 The arguments for this function are as follows:
 ### The **`settings`** argument
 You can change different properties of the titlebar using the settings argument.
