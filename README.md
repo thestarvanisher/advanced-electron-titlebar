@@ -144,7 +144,7 @@ List of the available functions:
 Currently this is in early development. You are more than welcome to contribute if you want! I am open to ideas and suggestion how to improve and expand the module.
 
 ## License
-This module is licensed under MIT.
+This module is licensed under [MIT](https://github.com/thestarvanisher/advanced-electron-titlebar/blob/master/LICENSE).
 
 
 
