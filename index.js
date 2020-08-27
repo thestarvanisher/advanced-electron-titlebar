@@ -7,9 +7,9 @@
  * @param {Object[]} menu - The menu structure for the menu on the titlebar
  */
 class Titlebar {
-    constructor(settings, menu) {
-        this.settings = settings;
-        this.menu = menu;
+    constructor() {
+        this.settings = null;
+        this.menu = null;
         this.params = {
             defaultTextColor: "#D3D3D3",
             defaultFont: "Impact",
@@ -30,7 +30,8 @@ class Titlebar {
             submenu: "submenu",
         },
         this.buttonPositions = [],
-        this.createTitlebar();
+        //this.createTitlebar();
+        this.electronWindow = null;
     }
 
     /** TODO: take the size of the electron window
@@ -46,16 +47,16 @@ class Titlebar {
     }
 
     /**
-     * Creates the titlebar
+     * Create the titlebar, the menu, the title label and the 
+     * window buttons
      */
     createTitlebar() {
         this.setParams();
-        console.log(this.params);
+        this.makeRequiredStyleChanges();
         this.makeTitlebar();
         this.makeTitlebarZones();
         this.makeMenu();
         this.calculateButtonPositions();
-        //this.makeHiddenButton();
         this.makeTitle();
         this.makeWindowButtons();
         this.addAdditionalEventListeners();
@@ -71,6 +72,18 @@ class Titlebar {
             }
         }
     }
+
+    /**
+     * Changes the stle of some elements which is required
+     * for the titlebar to work properly
+     */
+    makeRequiredStyleChanges() {
+        $("body").css({
+            "margin": "0",
+            "padding": "0",
+        });
+    }
+
 
     /**
      * Creates the titlebar
@@ -89,7 +102,7 @@ class Titlebar {
             "color": this.params.defaultTextColor,
             
         });
-        $("body").append(titlebar);
+        $("body").prepend(titlebar);
     }
 
     /*makeScrollbar() {
@@ -170,7 +183,7 @@ class Titlebar {
             "cursor": "pointer"
         });
 
-        console.log(this.params.buttonHoverColor);
+        //console.log(this.params.buttonHoverColor);
 
         let obj = this;
 
@@ -226,7 +239,7 @@ class Titlebar {
         return submenu;
     }
 
-    /** TODO: Fix the click handling
+    /** 
      * Creates a submenu or subsubmenu button
      * @param {String} text - The text displayed on the button
      * @param {Element} btn - The submenu object
@@ -502,7 +515,7 @@ class Titlebar {
         for(let i in this.menu) {
             let new_button = this.makeMenuButton(i);
             let new_submenu = this.makeSubmenu();
-            console.log(new_submenu);
+            //console.log(new_submenu);
             $(new_button).append(new_submenu);
             $("#ect-titlebar").children(".ect-titlebar_panel").first().append(new_button);
             this.recoursiveAddition(this.menu[i].submenu, new_submenu);
@@ -513,6 +526,10 @@ class Titlebar {
         $(dots_b).append(submenu);
         $("#ect-titlebar").children(".ect-titlebar_panel").first().append(dots_b);
         this.recoursiveAddition(this.menu, submenu);
+
+        $("#ect-b_dots").parent().hide();
+        $("#ect-b_dots").parent().children(".ect-submenu").first().children("ul").first().children("li").hide();
+        console.log($("#ect-b_dots").parent().children(".ect-submenu").first().children("ul").first().children("li"));
     }
 
     /**
@@ -522,6 +539,12 @@ class Titlebar {
     makeHiddenButton() {
         let dots = this.makeMenuButton("...");
         $(dots).children("button").first().attr("id", "ect-b_dots");
+        /*$(dots).children("button").first().css({
+            "display": "none",
+        });*/
+        //console.log("DOTS");
+        //console.log(dots);
+        /*$(dots).children("submenu").first().children("ul").first().children("li").hide();*/
         return dots;
     }
 
@@ -563,11 +586,14 @@ class Titlebar {
                 "background-color": obj.params.backgroundColor,
             });
         });
+        $(minimize).click(function() {
+            obj.minimize();
+        });
 
 
 
         let restore_maximize_window = document.createElement("button");
-        $(restore_maximize_window).html('<i class="far fa-window-restore" id="restore-icon"></i>');
+        $(restore_maximize_window).html('<i class="far fa-window-restore" id="ect-restore_icon"></i><i class="far fa-window-maximize" id="ect-maximize_icon"></i>');
         $(restore_maximize_window).attr({
             "class": "ect-titlebar_b",
             "id": "ect-restore_maximize_window"
@@ -582,6 +608,9 @@ class Titlebar {
             $(this).css({
                 "background-color": obj.params.backgroundColor,
             });
+        });
+        $(restore_maximize_window).click(function() {
+            obj.toggleMaximizeRestoreDown();
         });
 
 
@@ -603,6 +632,10 @@ class Titlebar {
                 "background-color": obj.params.backgroundColor,
             });
         });
+        $(close).click(function() {
+            obj.electronWindow.close();
+        })
+
 
         let zone3 = $("#ect-titlebar").children(".ect-titlebar_panel").get(2);
         $(zone3).append([minimize, restore_maximize_window, close]);
@@ -679,7 +712,9 @@ class Titlebar {
      */
     calculateSubmenusShown(number, show) {
         let submenu = $("#ect-b_dots").parent().children(".ect-submenu").first();
-        let li = $(submenu).children("ul").first().children("li").get(number - 1);
+        let li = $(submenu).children("ul").first().children("li").get(number);
+        //console.log("" + number + " " + show);
+        //console.log($(submenu).children("ul").first().children("li"));
     
         if(show == true) {
             $(li).show();
@@ -689,6 +724,34 @@ class Titlebar {
         }
     }
 
+    /**
+     * Loads the correct icon depending on whether
+     * the window is maximized or not
+     */
+    loadCorrectIconWindowButtons() {
+        if(this.electronWindow.isMaximized()) {
+            $("#ect-maximize_icon").hide();
+            $("#ect-restore_icon").show();
+        }
+        else {
+            $("#ect-maximize_icon").show();
+            $("#ect-restore_icon").hide(); 
+        }
+    }
+
+    /**
+     * Toggles the window maximization
+     */
+    toggleMaximizeRestoreDown() {
+        if(this.electronWindow.isMaximized()) {
+            this.electronWindow.unmaximize();
+        }
+        else {
+            this.electronWindow.maximize();
+        }
+
+        this.loadCorrectIconWindowButtons();
+    }
 
     /**
      * Adds additional event listeners to the titlebar
@@ -700,114 +763,28 @@ class Titlebar {
         $(window).resize(function() {
             console.log("resized");
             obj.resizedWinwow();
+            obj.loadCorrectIconWindowButtons();
+        });
+
+        $(document).ready(function() {
+            obj.loadCorrectIconWindowButtons();
+            obj.resizedWinwow();
         });
     }
 
+    /**
+     * Creates the titlebar with custom settings and menu
+     * @param {Object} settings - The settings for the titlebar
+     * @param {Object} menu - Dictionary containing the menu layout
+     * @param {Object} current_window - The current electron window
+     */
+    create(settings, menu, current_window) {
+        this.settings = settings;
+        this.menu = menu;
+        this.electronWindow = current_window;
+        this.createTitlebar();
+    }
 
 }
 
-$(document).ready(function() {
-
-    let menu = {
-        "File": {
-            type: "submenu",
-            submenu: {
-                "New File": {
-                    type: "standard",
-                    command: "Ctrl+N",
-                    method: () => testAlert(),
-                },
-                "Open File": {
-                    type: "standard",
-                    command: "Ctrl+O",
-                    method: () => testAlert(),
-                },
-                "Print menu": {
-                    type: "submenu",
-                    submenu: {
-                        "Print": {
-                            type: "standard",
-                            command: "Ctrl+P",
-                            method: () => testAlert(),
-                        },
-                        "More Options": {
-                            type: "submenu",
-                            submenu: {
-                                "Black and white copy green": {
-                                    type: "standard",
-                                    command: "Ctrl+B",
-                                    method: () => null,
-                                },
-                                "Color": {
-                                    type: "standard",
-                                    command: "",
-                                    methdod: () => null,
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-        },
-        "Edit": {
-            type: "submenu",
-            submenu: {
-                "Edit mode": {
-                    type: "standard",
-                    command: "Ctr+E",
-                    method: () => testAlert(),
-                }
-            }            
-        },
-        "Edit 1": {
-            type: "submenu",
-            submenu: {
-                "Edit mode": {
-                    type: "standard",
-                    command: "Ctr+E",
-                    method: () => testAlert(),
-                }
-            }            
-        },
-        "Edit 2": {
-            type: "submenu",
-            submenu: {
-                "Edit mode": {
-                    type: "standard",
-                    command: "Ctr+E",
-                    method: () => testAlert(),
-                }
-            }            
-        },
-        "Edit 3": {
-            type: "submenu",
-            submenu: {
-                "Edit mode": {
-                    type: "standard",
-                    command: "Ctr+E",
-                    method: () => testAlert(),
-                }
-            }            
-        },
-        "Edit 4": {
-            type: "submenu",
-            submenu: {
-                "Edit mode": {
-                    type: "standard",
-                    command: "Ctr+E",
-                    method: () => testAlert(),
-                }
-            }            
-        }
-    };
-
-    var r = new Titlebar({buttonHoverColor: "#686868"}, menu);
-});
-
-/**
- * Just a test function
- */
-function testAlert() {
-    alert("Test successful!");
-}
+module.exports = new Titlebar();
