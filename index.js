@@ -30,7 +30,6 @@ class Titlebar {
             submenu: "submenu",
         },
         this.buttonPositions = [],
-        //this.createTitlebar();
         this.electronWindow = null;
     }
 
@@ -83,7 +82,6 @@ class Titlebar {
             "padding": "0",
         });
     }
-
 
     /**
      * Creates the titlebar
@@ -183,8 +181,6 @@ class Titlebar {
             "cursor": "pointer"
         });
 
-        //console.log(this.params.buttonHoverColor);
-
         let obj = this;
 
         $(menu_button).hover(function() {
@@ -198,6 +194,11 @@ class Titlebar {
         $(menu_button).click(function(event) {
             event.stopPropagation();
             $(".ect-submenu").hide();
+            $(this).parent().children(".ect-submenu").first().children("ul").first().children("li").css({
+                "max-width": ("calc(" + (obj.getWindowSize()[0] - $(this)[0].getBoundingClientRect().x) + "px - 40px)"),
+                "display": "flex",
+                "overflow": "hidden",
+            })
             $(this).parent().children(".ect-submenu").first().css("display", "block");
         });
 
@@ -283,11 +284,6 @@ class Titlebar {
                 $(this).css({
                     "background-color": obj.params.backgroundColor,
                 });
-
-                //event.stopPropagation();
-                //console.log("TEST");
-
-
 
                 let subsubmenu = $(this).children(".ect-subsubmenu").first();
                 let left_offset = $(this)[0].getBoundingClientRect().x;
@@ -478,7 +474,6 @@ class Titlebar {
         }
     }   
 
-
     /**
      * Create the submenu buttons recoursively and create susubmenus if needed
      * @param {*} obj - The submenu 
@@ -515,7 +510,6 @@ class Titlebar {
         for(let i in this.menu) {
             let new_button = this.makeMenuButton(i);
             let new_submenu = this.makeSubmenu();
-            //console.log(new_submenu);
             $(new_button).append(new_submenu);
             $("#ect-titlebar").children(".ect-titlebar_panel").first().append(new_button);
             this.recoursiveAddition(this.menu[i].submenu, new_submenu);
@@ -527,7 +521,9 @@ class Titlebar {
         $("#ect-titlebar").children(".ect-titlebar_panel").first().append(dots_b);
         this.recoursiveAddition(this.menu, submenu);
 
-        $("#ect-b_dots").parent().hide();
+        $("#ect-b_dots").parent().css({
+            "visibility": "hidden",
+        });
         $("#ect-b_dots").parent().children(".ect-submenu").first().children("ul").first().children("li").hide();
         console.log($("#ect-b_dots").parent().children(".ect-submenu").first().children("ul").first().children("li"));
     }
@@ -539,12 +535,6 @@ class Titlebar {
     makeHiddenButton() {
         let dots = this.makeMenuButton("...");
         $(dots).children("button").first().attr("id", "ect-b_dots");
-        /*$(dots).children("button").first().css({
-            "display": "none",
-        });*/
-        //console.log("DOTS");
-        //console.log(dots);
-        /*$(dots).children("submenu").first().children("ul").first().children("li").hide();*/
         return dots;
     }
 
@@ -587,9 +577,8 @@ class Titlebar {
             });
         });
         $(minimize).click(function() {
-            obj.minimize();
+            obj.electronWindow.minimize();
         });
-
 
 
         let restore_maximize_window = document.createElement("button");
@@ -612,7 +601,6 @@ class Titlebar {
         $(restore_maximize_window).click(function() {
             obj.toggleMaximizeRestoreDown();
         });
-
 
 
         let close = document.createElement("button");
@@ -663,10 +651,10 @@ class Titlebar {
         let minimum_len_ttl_btn = 235;
         for(let i = 0; i < $(".ect-menu_b").length; i++) {
             let btn = $(".ect-menu_b")[i];
-
-            let btn_width = ($(btn).outerWidth() < $("#ect-b_dots").outerWidth()) ? $("#ect-b_dots").outerWidth() : $(btn).outerWidth();
+            let btn_width = ($(btn).outerWidth() < $("#ect-b_dots").outerWidth()) ? $("#ect-b_dots").outerWidth() : $(btn).outerWidth(); 
             this.buttonPositions.push(Math.ceil($(btn)[0].getBoundingClientRect().x + btn_width + minimum_len_ttl_btn));
         }
+        this.setWindowMinimumSize((this.buttonPositions[1] + $("#ect-b_dots").outerWidth()));
         this.buttonPositions.reverse();
     }
 
@@ -677,19 +665,19 @@ class Titlebar {
         let current_width = this.getWindowSize()[0];
         let number_buttons = this.buttonPositions.length
 
-        console.log("" + number_buttons + " " + this.params.minimumNumberMenuButtons);
-
-        console.log(this.buttonPositions);
+        $(".ect-submenu").hide();
         for(let i = 0; i < number_buttons - this.params.minimumNumberMenuButtons; i++) {
             if(current_width < this.buttonPositions[i]) {
-                console.log("hello");
                 let btn_1 = $(".ect-menu_b").get(number_buttons - i - 1);
                 let btn_2 = $(".ect-menu_b").get(number_buttons - i - 2);
 
                 $(btn_1).parent().hide();
                 $(btn_2).parent().hide();
 
-                $("#ect-b_dots").parent().show();
+                $("#ect-b_dots").parent().css({
+                    "visibility": "visible",
+                    "display": "inline-block",
+                });
                 this.calculateSubmenusShown(number_buttons - i - 1, true)
                 this.calculateSubmenusShown(number_buttons - i - 2, true)
             }
@@ -698,11 +686,13 @@ class Titlebar {
                 $(btn).parent().show();
                 this.calculateSubmenusShown(number_buttons - i - 2, false)
                 if(i == 0) {
-                    $("#ect-b_dots").parent().hide();
+                    $("#ect-b_dots").parent().css({
+                        "visibility": "hidden",
+                        "display": "inline-block"
+                    });
                 }
             }
         }
-
     }
 
     /**
@@ -713,8 +703,6 @@ class Titlebar {
     calculateSubmenusShown(number, show) {
         let submenu = $("#ect-b_dots").parent().children(".ect-submenu").first();
         let li = $(submenu).children("ul").first().children("li").get(number);
-        //console.log("" + number + " " + show);
-        //console.log($(submenu).children("ul").first().children("li"));
     
         if(show == true) {
             $(li).show();
@@ -754,14 +742,24 @@ class Titlebar {
     }
 
     /**
+     * Sets the minimum size of the window
+     * @param {Number} min_width - The minimum width of the window
+     */
+    setWindowMinimumSize(min_width) {
+        if(this.electronWindow.getMinimumSize()[0] < min_width) {
+            let current_mins = this.electronWindow.getMinimumSize();
+            console.log("-> " + min_width + " " + current_mins[1]);
+            this.electronWindow.setMinimumSize(Math.ceil(min_width), current_mins[1]);
+        }
+    }
+
+    /**
      * Adds additional event listeners to the titlebar
      */
     addAdditionalEventListeners() {
-
         let obj = this;
 
         $(window).resize(function() {
-            console.log("resized");
             obj.resizedWinwow();
             obj.loadCorrectIconWindowButtons();
         });
@@ -769,6 +767,10 @@ class Titlebar {
         $(document).ready(function() {
             obj.loadCorrectIconWindowButtons();
             obj.resizedWinwow();
+        });
+
+        $(document).click(function() {
+            $(".ect-submenu").hide();
         });
     }
 
