@@ -38,7 +38,7 @@ Make sure that the script is included in the `index.html` file with the **`defer
 ```html
 <script defer src="render.js"></script>
 ```
-Then in the file where you have required the module, create the titlebar by using the **`.create()`** function as follows:
+Then in the file where you have required the module, create the titlebar by using the **`.create()`** function:
 ```javascript
 titlebar.create(settings, menu, current_window)
 ```
