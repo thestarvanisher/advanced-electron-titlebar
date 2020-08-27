@@ -1,0 +1,22 @@
+{
+  "name": "advanced-electron-titlebar",
+  "version": "1.0.0",
+  "description": "Custom Electron titlebar",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thestarvanisher/advanced-electron-titlebar.git"
+  },
+  "author": "Ivalin Chobanov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thestarvanisher/advanced-electron-titlebar/issues"
+  },
+  "homepage": "https://github.com/thestarvanisher/advanced-electron-titlebar#readme",
+  "dependencies": {
+    "jquery": "^3.5.1"
+  }
+}
