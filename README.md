@@ -11,4 +11,6 @@ Current features:
 ## How to install
 
 ## How to use
+To use first require the module:
+`npm install --save advanced electron-titlebar`
 
