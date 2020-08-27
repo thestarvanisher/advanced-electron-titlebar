@@ -8,6 +8,7 @@
  */
 class Titlebar {
     constructor() {
+        window.$ = require("jquery")
         this.settings = null;
         this.menu = null;
         this.params = {
