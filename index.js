@@ -33,7 +33,7 @@ class Titlebar {
         this.electronWindow = null;
     }
 
-    /** TODO: take the size of the electron window
+    /**
      * Get the window size
      * @returns The window's size
      */
@@ -151,7 +151,6 @@ class Titlebar {
 
         $("#ect-titlebar").append([left_zone, center_zone, right_zone]);
     }
-
 
     /**
      * Creates a menu button together with its parent
