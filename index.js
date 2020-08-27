@@ -11,19 +11,27 @@ class Titlebar {
         this.settings = null;
         this.menu = null;
         this.params = {
-            defaultTextColor: "#D3D3D3",
-            defaultFont: "Impact",
             backgroundColor: "#484848",
+            fontColor: "#D3D3D3",
+            buttonsFont: "Arial",
+            menuButtonsColor: "#484848",
             buttonHoverColor: "#686868",
+            submenuColor: "",
+            submenuButtonColor: "",
+            submenuButtonHoverColor: "",
+            windowButtonColor: "",
+            windowButtonHoverColor: "",
             closeButtonHoverColor: "firebrick",
-            submenuButtonHoverColor: "t",
-            icon: null,
             titlebarLabelFont: "Impact",
             titlebarLabelColor: "#D3D3D3",
-            titlebarLabelSize: "16px",
-            menuButtonsColor: "t",
+            titlebarLabelSize: 16,
+
+            // In use but currently not meant for users to change
             defaultChevronRight: '<i class="fas fa-chevron-right"></i>',
             minimumNumberMenuButtons: 3,
+            
+            //Currently not in use
+            icon: null,
         };
         this.buttonTypes = {
             standard: "standard",
@@ -97,7 +105,7 @@ class Titlebar {
             "line-height": "30px",
             "display": "flex",
             "-webkit-user-select": "none",
-            "color": this.params.defaultTextColor,
+            "color": this.params.fontColor,
             
         });
         $("body").prepend(titlebar);
@@ -116,7 +124,7 @@ class Titlebar {
         let left_zone = document.createElement("div");
         $(left_zone).attr({"class": "ect-titlebar_panel ect-t_p_left"});
         $(left_zone).css({
-            //"font-family": this.params.defaultFont,
+            //"font-family": this.params.buttonsFont,
             //"font-size": "16px",
             "display": "inline-block",
             "position": "relative",
@@ -126,7 +134,7 @@ class Titlebar {
         let center_zone = document.createElement("div");
         $(center_zone).attr({"class": "ect-titlebar_panel ect-t_p_center"});
         $(center_zone).css({
-            "font-family": this.params.defaultFont,
+            "font-family": this.params.buttonsFont,
             "font-size": "16px",
             "display": "inline-block",
             "position": "relative",
@@ -142,7 +150,7 @@ class Titlebar {
         let right_zone = document.createElement("div");
         $(right_zone).attr({"class": "ect-titlebar_panel ect-t_right"});
         $(right_zone).css({
-            "font-family": this.params.defaultFont,
+            "font-family": this.params.buttonsFont,
             "font-size": "16px",
             "display": "inline-block",
             "position": "relative",
@@ -173,9 +181,10 @@ class Titlebar {
             "height": "30px",
             "padding-left": "10px",
             "padding-right": "10px",
-            "color": this.params.defaultTextColor,
+            "color": this.params.fontColor,
             "font-size": "14px",
-            "background-color": this.params.backgroundColor,
+            "font-family": this.params.buttonsFont,
+            "background-color": this.params.menuButtonsColor,
             "outline": "none",
             "cursor": "pointer"
         });
@@ -187,7 +196,7 @@ class Titlebar {
         });
 
         $(menu_button).mouseleave(function() {
-            $(this).css({"background-color": obj.params.backgroundColor});
+            $(this).css({"background-color": obj.params.menuButtonsColor});
         });
 
         $(menu_button).click(function(event) {
@@ -224,7 +233,7 @@ class Titlebar {
             "font-family": "Arial",
             "font-size": "14px",
             "cursor": "pointer",
-            "background-color": this.params.buttonHoverColor,
+            "background-color": this.params.submenuColor,
             "-webkit-box-shadow": "3px 3px 12px -2px rgba(0,0,0,0.75)"
         });
 
@@ -250,7 +259,7 @@ class Titlebar {
     makeSubmenuButton(text, btn, opens_submenu, hidden_at_first) {
         let subbutton = document.createElement("li");
         $(subbutton).css({
-            "background-color": this.params.buttonHoverColor,
+            "background-color": this.params.submenuButtonColor,
             "padding": "5px 20px",
             "display": "flex",
             "overflow": "hidden"
@@ -281,7 +290,7 @@ class Titlebar {
             let obj = this;
             $(subbutton).hover(function(event) {
                 $(this).css({
-                    "background-color": obj.params.backgroundColor,
+                    "background-color": obj.params.submenuButtonHoverColor,
                 });
 
                 let subsubmenu = $(this).children(".ect-subsubmenu").first();
@@ -356,7 +365,7 @@ class Titlebar {
     
             $(subbutton).mouseleave(function() {
                 $(this).css({
-                    "background-color": obj.params.buttonHoverColor,
+                    "background-color": obj.params.submenuButtonColor,
                 });
 
                 let subsubmenu = $(this).children(".ect-subsubmenu").first();
@@ -369,13 +378,13 @@ class Titlebar {
             let obj = this;
             $(subbutton).hover(function() {
                 $(this).css({
-                    "background-color": obj.params.backgroundColor,
+                    "background-color": obj.params.submenuButtonHoverColor,
                 });
             });
     
             $(subbutton).mouseleave(function() {
                 $(this).css({
-                    "background-color": obj.params.buttonHoverColor,
+                    "background-color": obj.params.submenuButtonColor,
                 });
             });
             
@@ -436,7 +445,7 @@ class Titlebar {
         $(separator_line).attr({"class": "ect-separator"});
         $(separator_line).css({
             "display": "block",
-            "border-bottom": "1px solid" + this.params.defaultTextColor,
+            "border-bottom": "1px solid" + this.params.fontColor,
         });
 
         $(separator).append(separator_line);
@@ -541,11 +550,14 @@ class Titlebar {
      * Creates the title label. Takes the text from the <title> tag
      */
     makeTitle() {
+        let obj = this;
         let title = document.createElement("span");
         $(title).attr({"class": "ect-title_panel"});
+        
         $(title).css({
-            "font-family": "Impact",
-            "font-size": "16px"
+            "font-family": obj.params.titlebarLabelFont,
+            "font-size": ("" + obj.params.titlebarLabelSize + "px"),
+            "color": obj.params.titlebarLabelColor
         });
         $(title).text($("title").text());
         let zone2 = $("#ect-titlebar").children(".ect-titlebar_panel").get(1);
@@ -564,15 +576,17 @@ class Titlebar {
             "class": "ect-titlebar_b",
             "id": "ect-minimize_window"
         });
-
+        $(minimize).css({
+            "background-color": obj.params.windowButtonColor,
+        });
         $(minimize).hover(function() {
             $(this).css({
-                "background-color": obj.params.buttonHoverColor,
+                "background-color": obj.params.windowButtonHoverColor,
             });            
         });
         $(minimize).mouseleave(function() {
             $(this).css({
-                "background-color": obj.params.backgroundColor,
+                "background-color": obj.params.windowButtonColor,
             });
         });
         $(minimize).click(function() {
@@ -586,15 +600,17 @@ class Titlebar {
             "class": "ect-titlebar_b",
             "id": "ect-restore_maximize_window"
         });
-
+        $(restore_maximize_window).css({
+            "background-color": obj.params.windowButtonColor,
+        });
         $(restore_maximize_window).hover(function() {
             $(this).css({
-                "background-color": obj.params.buttonHoverColor,
+                "background-color": obj.params.windowButtonHoverColor,
             });            
         });
         $(restore_maximize_window).mouseleave(function() {
             $(this).css({
-                "background-color": obj.params.backgroundColor,
+                "background-color": obj.params.windowButtonColor,
             });
         });
         $(restore_maximize_window).click(function() {
@@ -608,7 +624,9 @@ class Titlebar {
             "class": "ect-titlebar_b",
             "id": "ect-close_window"
         });
-
+        $(close).css({
+            "background-color": obj.params.windowButtonColor,
+        });
         $(close).hover(function() {
             $(this).css({
                 "background-color": obj.params.closeButtonHoverColor,
