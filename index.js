@@ -198,7 +198,6 @@ class Titlebar {
             $(".ect-submenu").hide();
             $(this).parent().children(".ect-submenu").first().children("ul").first().children("li").css({
                 "max-width": ("calc(" + (obj.getWindowSize()[0] - $(this)[0].getBoundingClientRect().x) + "px - 40px)"),
-                "display": "flex",
                 "overflow": "hidden",
             });
             $(this).parent().children(".ect-submenu").first().css("display", "block");
@@ -464,7 +463,7 @@ class Titlebar {
                     let new_subsubmenu = this.makeSubSubmenu();
                     $(new_submenu_button).append(new_subsubmenu);
 
-                    this.recoursiveAdditionSub(obj[i].submenu, new_subsubmenu);
+                    this.recoursiveAddition(obj[i].submenu, new_subsubmenu);
                     break;
                 }
             }
