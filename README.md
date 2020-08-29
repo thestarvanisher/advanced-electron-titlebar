@@ -6,6 +6,7 @@ Current features:
 - Custom titlebar background color, title label color, buttons hover color
 - Automatic shrink - if the window is too narrow to display the whole menu bar, then it is shrunk and the hidden ones are put in a submenu of a button with dots (Similar to VS Code)
 - Currently Fontawesome is used for icons on the titlebar so it will look the same on all platforms
+- Draw separation lines between buttons in submenus
 
 ## Dependencies
 - jQuery `^3.5.1`
@@ -75,9 +76,10 @@ let menu = {
     }
 }
 ```
-There are currently 2 types of buttons:
+There are currently 3 types of buttons:
 - The "standard" which is used to do some action
 - The "submenu" which is used to open a submenu on hover
+- The "separator" which draws a separation line between buttons
 
 These are the current available arguments:
 | Argument | Type | Values | Required for | Description |
@@ -114,6 +116,15 @@ The format for the "standard" button is the following:
     }
 }
 ```
+#### The "separator" button
+The format for the "separator" button is the following:
+```javascript
+"separator#": {
+    type: "separator",
+}
+```
+**Note:** Keep in mind that because this is inside an object, the keys must be unique and if you insert 2 elements with the same key for a separator, the first one will not be drawn. An easy way to deal wit that is to name the separator as `separator#` and replacing the `#` with a number and making sure the same number is not used twice in the same object.
+
 ### The **`current_window`** argument
 You have to pass the current Electron window to the function.
 For example you can use this to pass the current window:

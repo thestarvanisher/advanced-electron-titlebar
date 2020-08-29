@@ -37,6 +37,7 @@ class Titlebar {
         this.buttonTypes = {
             standard: "standard",
             submenu: "submenu",
+            separator: "separator",
         };
         this.buttonPositions = [];
         this.electronWindow = null;
@@ -426,7 +427,8 @@ class Titlebar {
         let separator = document.createElement("li");
         $(separator).attr({"class": "ect-separated"});
         $(separator).css({
-            "background-color": "" + this.params.buttonHoverColor + "!important",
+            "background-color": "" + this.params.submenuColor + "!important",
+            "padding": "5px 10px",
         });
 
         let separator_line = document.createElement("span");
@@ -464,6 +466,11 @@ class Titlebar {
                     $(new_submenu_button).append(new_subsubmenu);
 
                     this.recoursiveAddition(obj[i].submenu, new_subsubmenu);
+                    break;
+                }
+                case this.buttonTypes.separator: {
+                    let separator = this.makeSeparatorLine();
+                    $(add_to).children("ul").first().append(separator);
                     break;
                 }
             }

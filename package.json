@@ -1,6 +1,6 @@
 {
   "name": "advanced-electron-titlebar",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Custom Electron titlebar",
   "main": "index.js",
   "scripts": {
